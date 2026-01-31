@@ -1,0 +1,292 @@
+/* Basic Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Remove all top/bottom padding and margin from page and layout (plugin is rendered in body > .container) */
+body,
+.container,
+.dashboard-wrapper {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+.dashboard-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-title {
+  width: 100%;
+  text-align: center;
+  font-size: calc(var(--fc-title-font-size, 1.75em) * 1.54);
+  font-weight: bold;
+  font-family: "Jost";
+  padding: 0 !important;
+  margin: 0 !important;
+  color: #000000;
+  flex-shrink: 0;
+}
+
+.dashboard-container {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+.dashboard-left {
+  width: 66.666%;
+  flex: 0 0 66.666%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.dashboard-right {
+  width: 33.333%;
+  flex: 0 0 33.333%;
+  height: 100%;
+  padding: 20px 20px 0 20px;
+  font-family: "Jost";
+  overflow-y: auto;
+}
+
+.weather-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.weather-title {
+  font-size: calc(1.5 * var(--fc-table-font-size, 1em));
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: var(--fc-border-color, #000);
+}
+
+.weather-current {
+  width: 100%;
+}
+
+.weather-current-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: calc(1.2 * 1.4 * var(--fc-table-font-size, 1em));
+}
+
+.weather-current .weather-icon {
+  font-size: calc(2 * 1.4 * var(--fc-table-font-size, 1em));
+  line-height: 1;
+}
+
+.weather-current .weather-temp {
+  font-size: calc(1.5 * 1.4 * 0.8 * var(--fc-table-font-size, 1em));
+  font-weight: bold;
+}
+
+.weather-current .weather-wind {
+  font-size: calc(1 * 1.4 * 0.9 * var(--fc-table-font-size, 1em));
+  color: #666;
+}
+
+.weather-forecast {
+  width: 100%;
+}
+
+.weather-day {
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.weather-day:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.weather-day-date {
+  font-size: calc(1.1 * 1.5 * var(--fc-table-font-size, 1em));
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #000000;
+}
+
+.weather-day-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: calc(1 * 1.5 * var(--fc-table-font-size, 1em));
+}
+
+.weather-day .weather-icon {
+  font-size: calc(2 * 1.3 * var(--fc-table-font-size, 1em));
+  line-height: 1;
+}
+
+.weather-temp-range {
+  font-weight: bold;
+}
+
+.weather-precipitation {
+  color: #0000FF;
+  margin-left: auto;
+}
+
+.calendar {
+  width: 100%;
+  height: 100%;
+  font-family: "Jost";
+  overflow: hidden;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+
+.calendar .fc {
+  width: 100%;
+  height: 100%;
+}
+
+.fc-toolbar.fc-header-toolbar {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-top: 0 !important;
+}
+
+.fc .fc-daygrid-body-natural .fc-daygrid-day-events {
+  margin-bottom: 0px !important;
+
+}
+
+.fc .fc-daygrid-day-number {
+  padding-top: 0px !important;
+  padding-bottom: 0px !important;
+}
+
+.fc-widget-header {
+  background-color: white;
+}
+
+.fc-dayGrid-view .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
+  border: 2px solid var(--fc-border-color) !important;
+}
+
+.fc-dayGridMonth-view .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame {
+  border: 2px solid var(--fc-border-color) !important;
+}
+
+.fc-timeGrid-view thead .fc-day.fc-day-today .fc-scrollgrid-sync-inner {
+  border: 2px solid var(--fc-border-color) !important;
+}
+
+.fc-timeGridWeek-view thead .fc-col-header-cell.fc-day-today .fc-scrollgrid-sync-inner {
+  border: 2px solid var(--fc-border-color) !important;
+}
+
+.fc .fc-timegrid-now-indicator-line {
+  border-top-width: 3px !important;
+}
+
+.fc-scrollgrid {
+  border-color: transparent !important;
+}
+
+.fc-scrollgrid td:last-of-type {
+  border-right-color: transparent !important;
+}
+
+th {
+  border-top-color: transparent;
+  border-right-color: transparent !important;
+  border-left-color: transparent !important;
+}
+
+
+.fc .fc-toolbar-title {
+  font-size: var(--fc-title-font-size) !important;
+}
+
+.fc table {
+  font-size: var(--fc-table-font-size) !important;
+}
+
+/* Hide the colored calendar ID dot in list view and free space for event title */
+.fc-list-event .fc-list-event-graphic,
+.fc-list-event .fc-event-dot,
+.fc-list-event-graphic {
+  display: none !important;
+}
+
+/* Give event title full width where the dot was */
+.fc-list-event .fc-list-event-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fc-list-event .fc-list-event-time {
+  flex-shrink: 0;
+}
+
+/* Style other days' date headers (tomorrow, day after) with blue background and white text */
+.fc-list-day:not(.fc-day-today) {
+  background-color: #0000FF !important;
+  color: #FFFFFF !important;
+}
+
+.fc-list-day:not(.fc-day-today) .fc-list-day-text,
+.fc-list-day:not(.fc-day-today) .fc-list-day-side-text,
+.fc-list-day:not(.fc-day-today) .fc-list-day-cushion {
+  background-color: #0000FF !important;
+  color: #FFFFFF !important;
+}
+
+.fc-list-day:not(.fc-day-today) * {
+  color: #FFFFFF !important;
+}
+
+/* Style today's date header in list views with pure green background for Waveshare EPD */
+.fc-list-day.fc-day-today {
+  background-color: #00FF00 !important;
+  color: #FFFFFF !important;
+}
+
+.fc-list-day.fc-day-today .fc-list-day-text,
+.fc-list-day.fc-day-today .fc-list-day-side-text,
+.fc-list-day.fc-day-today .fc-list-day-cushion {
+  background-color: #00FF00 !important;
+  color: #FFFFFF !important;
+}
+
+/* Ensure all text elements within today's header are white */
+.fc-list-day.fc-day-today * {
+  color: #FFFFFF !important;
+}
+
+/* Ensure FullCalendar elements fill the 2/3 width calendar column and have no top/bottom spacing */
+.calendar .fc-view-harness,
+.calendar .fc-scroller,
+.calendar .fc-scroller-liquid-absolute {
+  width: 100% !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}

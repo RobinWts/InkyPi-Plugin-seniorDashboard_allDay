@@ -1,0 +1,151 @@
+{% extends "plugin.html" %}
+
+{% block content %}
+
+<script src="{{static_dir}}/scripts/calendar.min.js" charset="UTF-8"></script>
+
+<div class="dashboard-wrapper">
+    <div class="dashboard-title" id="dashboard-title"></div>
+
+    <div class="dashboard-container">
+        <div class="dashboard-left">
+            <div id="calendar" class="calendar" style="
+        --fc-page-bg-color: {{ plugin_settings.backgroundColor or white }};
+        --fc-border-color: {{ plugin_settings.textColor }};
+        --fc-today-bg-color: '';
+        --fc-event-border-color: {{ plugin_settings.textColor or white }};
+
+        --fc-small-font-size: {{ 0.85 * font_scale }}em;
+        --fc-title-font-size: {{ 1.75 * font_scale }}em;
+        --fc-table-font-size: {{ 1 * font_scale }}em;
+        ">
+
+            </div>
+        </div>
+        <div class="dashboard-right">
+            <div class="weather-container">
+                {% if weather and weather.current %}
+                <div class="weather-current">
+                    <div class="weather-current-content">
+                        <span class="weather-icon">{{ weather.current.icon }}</span>
+                        <span class="weather-temp">{{ weather.current.temperature|round|int }}°C</span>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if weather and weather.forecast %}
+                <div class="weather-forecast">
+                    {% for day in weather.forecast %}
+                    <div class="weather-day">
+                        <div class="weather-day-date">{{ day.date }}</div>
+                        <div class="weather-day-content">
+                            <span class="weather-icon">{{ day.icon }}</span>
+                            <span class="weather-temp-range">{{ day.temp_min|round|int }}–{{ day.temp_max|round|int
+                                }}°C</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="senior-dashboard-config">
+{{ {
+    "events": events,
+    "time_format_12h": time_format == "12h",
+    "locale": plugin_settings.language or "en",
+    "timezone": timezone,
+    "current_dt": current_dt,
+    "labels": labels
+} | tojson }}
+</script>
+<script>
+    (function () {
+        const configEl = document.getElementById('senior-dashboard-config');
+        const config = configEl ? JSON.parse(configEl.textContent) : {};
+        const calendarEvents = config.events || [];
+        const locale = config.locale || 'en';
+        const timezone = config.timezone || 'UTC';
+        const currentDt = config.current_dt || '';
+        const timeFormat12h = config.time_format_12h !== false;
+        const labels = config.labels || { allDayText: 'All day', noEventsContent: 'Nothing scheduled!' };
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const calendarEl = document.getElementById('calendar');
+            const timeFormat = {
+                hour: "numeric",
+                minute: "2-digit",
+                omitZeroMinute: timeFormat12h,
+                hour12: timeFormat12h,
+                meridiem: 'short'
+            };
+
+            const currentDate = new Date(currentDt);
+            const dateFormatter = new Intl.DateTimeFormat(locale, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: timezone
+            });
+            const formattedTitle = dateFormatter.format(currentDate);
+
+            // Calculate the 3-day range for display
+            const startDate = new Date(currentDt);
+            const endDate = new Date(currentDt);
+            endDate.setDate(endDate.getDate() + 3);
+
+            console.log('Current date:', currentDt);
+            console.log('Total events from backend:', calendarEvents.length);
+            console.log('Events:', calendarEvents);
+
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'list',
+                views: {
+                    list: {
+                        duration: { days: 3 }
+                    }
+                },
+                events: calendarEvents,
+                now: currentDt,
+                initialDate: currentDt,
+                validRange: {
+                    start: startDate,
+                    end: endDate
+                },
+                timeZone: timezone,
+                contentHeight: '100%',
+                expandRows: true,
+                locale: locale,
+                allDayText: labels.allDayText,
+                noEventsContent: labels.noEventsContent,
+                eventTimeFormat: timeFormat,
+                displayEventTime: true,
+                weekends: true,
+                fixedWeekCount: false,
+                headerToolbar: {
+                    left: '',
+                    center: '',
+                    right: ''
+                },
+                datesSet: function () {
+                    const dashboardTitleEl = document.getElementById('dashboard-title');
+                    if (dashboardTitleEl) {
+                        dashboardTitleEl.textContent = formattedTitle;
+                    }
+                }
+            });
+            calendar.render();
+
+            const dashboardTitleEl = document.getElementById('dashboard-title');
+            if (dashboardTitleEl) {
+                dashboardTitleEl.textContent = formattedTitle;
+            }
+        });
+    })();
+</script>
+
+{% endblock %}
