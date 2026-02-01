@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <div>
     <label class="form-label">Calendars:</label>
     <div id="calendarList"></div>
@@ -17,6 +20,19 @@
 </div>
 
 <div class="form-group">
+    <label class="form-label">Weather location:</label>
+    <div class="form-group">
+        <span>Latitude </span>
+        <input readonly type="text" id="latitude" name="latitude" class="form-input" />
+    </div>
+    <div class="form-group">
+        <span>Longitude </span>
+        <input readonly type="text" id="longitude" name="longitude" class="form-input" />
+    </div>
+    <button type="button" id="openMap" class="action-button compact">Select Location</button>
+</div>
+
+<div class="form-group">
     <div class="form-group nowrap">
         <label for="fontSize" class="form-label">Font Size:</label>
         <select id="fontSize" name="fontSize" class="form-input">
@@ -28,6 +44,16 @@
             <option value="larger">Larger</option>
             <option value="x-large">Extra Larger</option>
         </select>
+    </div>
+</div>
+
+<div id="mapModal" class="modal">
+    <div class="modal-content">
+        <span class="close-button" onclick="closeModal('mapModal')">×</span>
+        <h2 id="modalTitle">Select Location</h2>
+        <div class="separator"></div>
+        <div id="seniorDashboardMap" style="width: 100%; height: 200px; margin: 10px 0px;"></div>
+        <button id="closeMap" class="action-button">Save</button>
     </div>
 </div>
 
@@ -65,10 +91,14 @@
         let language = "en";
         let calendars = [{ url: '' }];
         let fontSize = "normal";
+        let latitude = "";
+        let longitude = "";
 
         if (loadPluginSettings) {
             language = pluginSettings.language || "en";
             fontSize = pluginSettings.fontSize || "normal";
+            latitude = pluginSettings.latitude != null && pluginSettings.latitude !== "" ? pluginSettings.latitude : "";
+            longitude = pluginSettings.longitude != null && pluginSettings.longitude !== "" ? pluginSettings.longitude : "";
 
             if (pluginSettings["calendarURLs[]"]) {
                 calendars = pluginSettings["calendarURLs[]"].map((url) => ({
@@ -80,10 +110,51 @@
         // populate language dropdown
         document.getElementById('language').value = language;
         document.getElementById('fontSize').value = fontSize;
+        document.getElementById('latitude').value = latitude;
+        document.getElementById('longitude').value = longitude;
 
         // populate calendars
         calendars.forEach(({ url }) => {
             addCalendarInput(url);
+        });
+
+        // Map picker for weather location (like weather plugin)
+        const OSM_TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const $latitude = document.querySelector('#latitude');
+        const $longitude = document.querySelector('#longitude');
+        const $openMap = document.querySelector('#openMap');
+        const $mapModal = document.querySelector('#mapModal');
+        const $closeMap = document.querySelector('#closeMap');
+
+        let mapLat = latitude ? +latitude : 49.8728;
+        let mapLon = longitude ? +longitude : 8.6512;
+        let zoom = (latitude && longitude) ? 4.5 : 2.5;
+        let map, marker;
+
+        $openMap.addEventListener('click', () => {
+            openModal('mapModal');
+            setTimeout(() => {
+                if (!map) {
+                    map = L.map('seniorDashboardMap').setView([mapLat, mapLon], zoom);
+                    L.tileLayer(OSM_TILE_URL).addTo(map);
+                    marker = L.marker([mapLat, mapLon], { draggable: true }).addTo(map);
+                    map.on('click', (event) => {
+                        marker.setLatLng(event.latlng);
+                    });
+                } else {
+                    map.setView([mapLat, mapLon], zoom);
+                    marker.setLatLng([mapLat, mapLon]);
+                }
+            }, 100);
+        });
+
+        $closeMap.addEventListener('click', () => {
+            const position = marker.getLatLng().wrap();
+            mapLat = position.lat;
+            mapLon = position.lng;
+            $latitude.value = position.lat;
+            $longitude.value = position.lng;
+            closeModal('mapModal');
         });
     });
 </script>
