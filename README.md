@@ -4,8 +4,8 @@
 
 **What it does:**
 
-- **Calendar** — Displays today and the next couple of days in a list. Events that have already ended are hidden. The calendar is read-only on the display; someone else (e.g. a relative or carer) updates the shared calendar (e.g. Google Calendar, iCal URL) via the InkyPi settings. The senior only needs to look at the screen to see what’s coming up.
-- **Weather** — Shows current conditions and a short forecast (e.g. tomorrow and the day after) in a minimal layout: icon and temperature, with optional high/low and precipitation. Right now it's hardcoded to Darmstad, Germany but a setting will be added soon to change that :)
+- **Calendar** — Displays today and the next two of days in a list. Events that have already ended are hidden. 
+- **Weather** — Shows current conditions and a short forecast (e.g. tomorrow and the day after) in a minimal layout: icon and temperature, with high/low for the next days. Right now it's hardcoded to Darmstad, Germany but a setting will be added soon to change that :)
 
 Language can be set to **English** or **German**. The layout is kept clear and low-clutter so it works well on an e-ink display and for quick, easy reading.
 
