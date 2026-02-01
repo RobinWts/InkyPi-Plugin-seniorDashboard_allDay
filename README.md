@@ -6,10 +6,14 @@
 
 - **Calendar** — Displays today and the next two of days in a list. Events that have already ended are hidden. 
 - **Weather** — Shows current conditions and a short forecast (e.g. tomorrow and the day after) in a minimal layout: icon and temperature, with high/low for the next days.
+It uses the DWD (Deutscher Wetter Dienst) free API, so no API-kex config needed.
 
 Language can be set to **English** or **German**. The layout is kept clear and low-clutter so it works well on an e-ink display and for quick, easy reading.
 
-It is optimized for and tested only on landscape waveshare 7.2 inch display...
+It is optimized for and tested only on landscape waveshare 7.2 inch display but should render ok on every comparable landscape display.
+
+It's basically a mix of the calendar list view and weather template.
+No additional dependencies whatsoever.
 
 
 ## Screenshot
