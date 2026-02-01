@@ -30,7 +30,9 @@ Install the plugin using the InkyPi CLI, providing the plugin ID and GitHub repo
 inkypi install seniorDashboard_allDay https://github.com/RobinWts/InkyPi-Plugin-seniorDashboard_allDay
 ```
 
+## Development-status
 
+Feature complete and done for the moment. Pobably will update in the future if needed.
 
 ## License
 
