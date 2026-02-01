@@ -71,7 +71,13 @@
         const timezone = config.timezone || 'UTC';
         const currentDt = config.current_dt || '';
         const timeFormat12h = config.time_format_12h !== false;
-        const labels = config.labels || { allDayText: 'All day', noEventsContent: 'Nothing scheduled!' };
+        const labels = config.labels || {
+            allDayText: 'All day',
+            noEventsContent: 'Nothing scheduled!',
+            today: 'Today',
+            tomorrow: 'Tomorrow',
+            dayAfterTomorrow: 'Day after tomorrow'
+        };
 
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('calendar');
@@ -136,6 +142,27 @@
                     if (dashboardTitleEl) {
                         dashboardTitleEl.textContent = formattedTitle;
                     }
+                    // Set list day headers to "Heute: Sonntag 1. Februar 2026" (same format as title: weekday, month, day, year)
+                    const dayLabels = [labels.today, labels.tomorrow, labels.dayAfterTomorrow];
+                    const dayDates = [
+                        currentDate,
+                        (function () { const d = new Date(currentDt); d.setDate(d.getDate() + 1); return d; })(),
+                        (function () { const d = new Date(currentDt); d.setDate(d.getDate() + 2); return d; })()
+                    ];
+                    requestAnimationFrame(function () {
+                        const listDays = calendarEl.querySelectorAll('.fc-list-day');
+                        listDays.forEach(function (dayEl, i) {
+                            const label = dayLabels[i];
+                            const dayDate = dayDates[i];
+                            if (!label || !dayDate) return;
+                            const formatted = dateFormatter.format(dayDate);
+                            const text = label + ': ' + formatted;
+                            const textEl = dayEl.querySelector('.fc-list-day-text') || dayEl.querySelector('.fc-list-day-cushion');
+                            const sideEl = dayEl.querySelector('.fc-list-day-side-text');
+                            if (textEl) textEl.textContent = text;
+                            if (sideEl) sideEl.textContent = text;
+                        });
+                    });
                 }
             });
             calendar.render();

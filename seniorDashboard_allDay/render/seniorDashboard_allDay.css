@@ -245,6 +245,11 @@ th {
   flex-shrink: 0;
 }
 
+/* Placeholder "nothing more today" event: hide time/all-day cell so only the label text shows */
+.fc-list-event.senior-dashboard-nothing-more .fc-list-event-time {
+  display: none !important;
+}
+
 /* Style other days' date headers (tomorrow, day after) with blue background and white text */
 .fc-list-day:not(.fc-day-today) {
   background-color: #0000FF !important;

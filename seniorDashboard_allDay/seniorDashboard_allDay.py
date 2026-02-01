@@ -64,6 +64,46 @@ class SeniorDashboardAllDay(BasePlugin):
         locale_code = display_settings.get("language", "en")
         labels = LABELS.get(locale_code, LABELS["en"])
 
+        # If no events (anymore) for today, add placeholder so today section is never dropped
+        has_today_event = self._has_event_on_date(events, current_dt.date(), tz)
+        if not has_today_event:
+            today_start = current_dt.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+            placeholder = {
+                "title": labels["nothingMoreToday"],
+                "start": today_start,
+                "allDay": True,
+                "backgroundColor": default_color,
+                "textColor": self.get_contrast_color(default_color),
+                "classNames": ["senior-dashboard-nothing-more"],
+            }
+            events = list(events) + [placeholder]
+
+        # If no events for tomorrow, add placeholder with noEventsContent (no time/all-day shown)
+        tomorrow_date = current_dt.date() + timedelta(days=1)
+        if not self._has_event_on_date(events, tomorrow_date, tz):
+            tomorrow_start = (current_dt + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+            events = list(events) + [{
+                "title": labels["noEventsContent"],
+                "start": tomorrow_start,
+                "allDay": True,
+                "backgroundColor": default_color,
+                "textColor": self.get_contrast_color(default_color),
+                "classNames": ["senior-dashboard-nothing-more"],
+            }]
+
+        # If no events for day after tomorrow, add placeholder with noEventsContent (no time/all-day shown)
+        day_after_date = current_dt.date() + timedelta(days=2)
+        if not self._has_event_on_date(events, day_after_date, tz):
+            day_after_start = (current_dt + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
+            events = list(events) + [{
+                "title": labels["noEventsContent"],
+                "start": day_after_start,
+                "allDay": True,
+                "backgroundColor": default_color,
+                "textColor": self.get_contrast_color(default_color),
+                "classNames": ["senior-dashboard-nothing-more"],
+            }]
+
         # Fetch weather data (uses locale for forecast day labels)
         weather_data = self.fetch_weather_data(timezone, locale_code)
 
@@ -149,6 +189,24 @@ class SeniorDashboardAllDay(BasePlugin):
         print(f"{'='*80}\n")
         return parsed_events
     
+    def _has_event_on_date(self, events, target_date, tz):
+        """Return True if any event starts on target_date (timezone-aware comparison)."""
+        for ev in events:
+            start_str = ev.get("start")
+            if not start_str:
+                continue
+            try:
+                dt = datetime.fromisoformat(start_str.replace("Z", "+00:00"))
+                if dt.tzinfo is None:
+                    dt = tz.localize(dt)
+                else:
+                    dt = dt.astimezone(tz)
+                if dt.date() == target_date:
+                    return True
+            except (ValueError, TypeError):
+                continue
+        return False
+
     def get_view_range(self, current_dt):
         """Get the date range for this week and next week (2 weeks total)."""
         start = datetime(current_dt.year, current_dt.month, current_dt.day)

@@ -18,12 +18,16 @@ LABELS = {
     "en": {
         "allDayText": "All day",
         "noEventsContent": "Nothing scheduled!",
+        "nothingMoreToday": "Nothing more for today.",
+        "today": "Today",
         "tomorrow": "Tomorrow",
         "dayAfterTomorrow": "Day after tomorrow",
     },
     "de": {
         "allDayText": "Ganztägig",
-        "noEventsContent": "Nix los zur Zeit!",
+        "noEventsContent": "Nix geplant!",
+        "nothingMoreToday": "Nix mehr los heute!",
+        "today": "Heute",
         "tomorrow": "Morgen",
         "dayAfterTomorrow": "Übermorgen",
     },
