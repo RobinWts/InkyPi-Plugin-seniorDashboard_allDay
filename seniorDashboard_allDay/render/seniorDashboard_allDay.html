@@ -137,6 +137,18 @@
                     center: '',
                     right: ''
                 },
+                eventDidMount: function (arg) {
+                    if (arg.el.classList.contains('senior-dashboard-nothing-more')) {
+                        const timeEl = arg.el.querySelector('.fc-list-event-time');
+                        const titleEl = arg.el.querySelector('.fc-list-event-title');
+                        if (timeEl) {
+                            timeEl.style.visibility = 'hidden';
+                        }
+                        if (titleEl) {
+                            titleEl.textContent = arg.event.title || '';
+                        }
+                    }
+                },
                 datesSet: function () {
                     const dashboardTitleEl = document.getElementById('dashboard-title');
                     if (dashboardTitleEl) {
