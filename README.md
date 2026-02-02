@@ -1,4 +1,5 @@
 # InkyPi-Plugin-seniorDashboard_allDay
+![Example of InkyPi-Plugin-seniorDashboard_allDay](./example.png)
 
 *InkyPi-Plugin-seniorDashboard_allDay* is a plugin for [InkyPi](https://github.com/fatihak/InkyPi) that shows a simple, at-a-glance view of the next few days: a calendar list and a small weather block. It is intended for an elderly person who has a calendar maintained for them by a family member or carer.
 
@@ -23,10 +24,6 @@ You can add multiple calendars, they will all be used to compile the today, tomo
 Location setting for the weather (DWD supplies world wide weather info).
 Font size for the Calendar listing.
 
-
-## Screenshot
-
-![Example of InkyPi-Plugin-seniorDashboard_allDay](./example.png)
 
 ## Installation
 
