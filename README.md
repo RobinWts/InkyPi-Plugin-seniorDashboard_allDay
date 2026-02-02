@@ -8,7 +8,9 @@
 - **Weather** — Shows current conditions and a short forecast (e.g. tomorrow and the day after) in a minimal layout: icon and temperature, with high/low for the next days.
 It uses the DWD (Deutscher Wetter Dienst) free API, so no API-key config needed.
 
-Language can be set to **English** or **German**. The layout is kept clear and low-clutter so it works well on an e-ink display and for quick, easy reading.
+Language can be set to **English**, **French** , **Spanish**  or **German**. 
+Other languages can easily be added in *constants.py*, just make sure to use the correct international language ID so the calendar returns correct dates/formats.
+The layout is kept clear and low-clutter so it works well on an e-ink display and for quick, easy reading.
 
 It is optimized for and tested only on landscape waveshare 7.2 inch display but should render ok on every comparable landscape display.
 

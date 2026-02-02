@@ -8,12 +8,23 @@ FONT_SIZES = {
     "x-large": 1.3
 }
 
+# Language options shown in the plugin settings dropdown.
+# The selected locale code is passed to FullCalendar and to Intl.DateTimeFormat for the
+# dashboard title and list-day headers, so dates (weekday, month, day, year) are already
+# fully localized by the browser when the correct locale code is used.
 LOCALE_MAP = {
     "en": "English",
     "de": "German",
+    "es": "Spanish",
+    "fr": "French",
 }
 
-# UI strings for localization (keyed by locale code)
+# UI strings for localization (keyed by locale code).
+# To add a new language:
+#   1. Add an entry to LOCALE_MAP above (e.g. "it": "Italian").
+#   2. Add a corresponding entry here with the same keys as "en", translated.
+# The calendar and date formatting use the same locale code, so weekday/month names and
+# date order will be correct for that language without further changes.
 LABELS = {
     "en": {
         "allDayText": "All day",
@@ -30,6 +41,22 @@ LABELS = {
         "today": "Heute",
         "tomorrow": "Morgen",
         "dayAfterTomorrow": "Übermorgen",
+    },
+    "es": {
+        "allDayText": "Todo el día",
+        "noEventsContent": "¡Nada programado!",
+        "nothingMoreToday": "Nada más para hoy.",
+        "today": "Hoy",
+        "tomorrow": "Mañana",
+        "dayAfterTomorrow": "Pasado mañana",
+    },
+    "fr": {
+        "allDayText": "Toute la journée",
+        "noEventsContent": "Rien de prévu !",
+        "nothingMoreToday": "Rien d'autre pour aujourd'hui.",
+        "today": "Aujourd'hui",
+        "tomorrow": "Demain",
+        "dayAfterTomorrow": "Après-demain",
     },
 }
 
