@@ -32,7 +32,7 @@ Font size for the Calendar listing.
 Install the plugin using the InkyPi CLI, providing the plugin ID and GitHub repository URL:
 
 ```bash
-install/cli/inkypi-plugin install seniorDashboard_allDay https://github.com/RobinWts/InkyPi-Plugin-seniorDashboard_allDay
+inkypi plugin install seniorDashboard_allDay https://github.com/RobinWts/InkyPi-Plugin-seniorDashboard_allDay
 ```
 
 or since there seems to be dev-work in progress on the CLI entrypoints, simply zip download the this repo from github, unzip it and copy the *seniorDashboard_allDay* folder to your InkyPy plugin-dir (usually ~/InkyPy/scr/plugins) and restart the service with 
