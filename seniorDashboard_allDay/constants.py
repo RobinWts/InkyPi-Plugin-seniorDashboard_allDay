@@ -33,6 +33,10 @@ LABELS = {
         "today": "Today",
         "tomorrow": "Tomorrow",
         "dayAfterTomorrow": "Day after tomorrow",
+        "offlineTitle": "No internet connection",
+        "offlineMessage": "The device will restart automatically at",
+        "offlineClock": "",
+        "offlineReassure": "Please wait a moment.",
     },
     "de": {
         "allDayText": "Ganztägig",
@@ -41,6 +45,10 @@ LABELS = {
         "today": "Heute",
         "tomorrow": "Morgen",
         "dayAfterTomorrow": "Übermorgen",
+        "offlineTitle": "Keine Internetverbindung",
+        "offlineMessage": "Das Gerät startet automatisch neu um",
+        "offlineClock": "Uhr",
+        "offlineReassure": "Bitte einen Moment Geduld.",
     },
     "es": {
         "allDayText": "Todo el día",
@@ -49,6 +57,10 @@ LABELS = {
         "today": "Hoy",
         "tomorrow": "Mañana",
         "dayAfterTomorrow": "Pasado mañana",
+        "offlineTitle": "Sin conexión a internet",
+        "offlineMessage": "El dispositivo se reiniciará automáticamente a las",
+        "offlineClock": "",
+        "offlineReassure": "Por favor, espere un momento.",
     },
     "fr": {
         "allDayText": "Toute la journée",
@@ -57,6 +69,10 @@ LABELS = {
         "today": "Aujourd'hui",
         "tomorrow": "Demain",
         "dayAfterTomorrow": "Après-demain",
+        "offlineTitle": "Pas de connexion internet",
+        "offlineMessage": "L'appareil redémarrera automatiquement à",
+        "offlineClock": "",
+        "offlineReassure": "Veuillez patienter un instant.",
     },
 }
 

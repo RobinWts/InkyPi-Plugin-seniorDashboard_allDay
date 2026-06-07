@@ -1,0 +1,58 @@
+{% extends "plugin.html" %}
+
+{% block content %}
+
+<script type="application/json" id="senior-offline-config">
+{{ {
+    "locale": locale_code or "en",
+    "timezone": timezone,
+    "current_dt": current_dt
+} | tojson }}
+</script>
+
+<div class="offline-wrapper" style="font-size: {{ font_scale }}em;">
+    <div class="offline-date" id="offline-date"></div>
+
+    <div class="offline-icon">⚠️</div>
+
+    <div class="offline-title">{{ labels.offlineTitle }}</div>
+
+    <div class="offline-message">
+        {{ labels.offlineMessage }}
+        <span class="offline-time">{{ reboot_time }}{% if labels.offlineClock %} {{ labels.offlineClock }}{% endif %}</span>
+    </div>
+
+    {% if labels.offlineReassure %}
+    <div class="offline-reassure">{{ labels.offlineReassure }}</div>
+    {% endif %}
+</div>
+
+<script>
+    (function () {
+        const configEl = document.getElementById('senior-offline-config');
+        const config = configEl ? JSON.parse(configEl.textContent) : {};
+        const locale = config.locale || 'en';
+        const timezone = config.timezone || 'UTC';
+        const currentDt = config.current_dt || '';
+
+        // Localize the current date the same way the main dashboard does (Intl.DateTimeFormat),
+        // so weekday/month names match the selected language.
+        try {
+            const dateFormatter = new Intl.DateTimeFormat(locale, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                timeZone: timezone
+            });
+            const el = document.getElementById('offline-date');
+            if (el && currentDt) {
+                el.textContent = dateFormatter.format(new Date(currentDt));
+            }
+        } catch (e) {
+            console.error('Failed to format offline date:', e);
+        }
+    })();
+</script>
+
+{% endblock %}

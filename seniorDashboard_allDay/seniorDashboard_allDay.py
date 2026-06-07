@@ -1,5 +1,7 @@
 from plugins.base_plugin.base_plugin import BasePlugin
 from plugins.seniorDashboard_allDay.constants import LOCALE_MAP, LABELS, FONT_SIZES, WEATHER_ICONS
+from plugins.seniorDashboard_allDay import reboot_manager
+from plugins.seniorDashboard_allDay.reboot_manager import REBOOT_DELAY_SECONDS
 from PIL import ImageColor
 import icalendar
 import recurring_ical_events
@@ -24,6 +26,18 @@ class SeniorDashboardAllDay(BasePlugin):
         for url in calendar_urls:
             if not url.strip():
                 raise RuntimeError("Invalid calendar URL")
+
+        # Network reachability gate: if the calendar(s) cannot be reached due to a network
+        # failure (dead WLAN), show a localized offline screen and schedule an automatic
+        # reboot to recover. If we are online, cancel any reboot that was pending.
+        if not self._check_connectivity(calendar_urls):
+            tz = pytz.timezone(device_config.get_config("timezone", default="America/New_York"))
+            reboot_at = reboot_manager.schedule_reboot(
+                REBOOT_DELAY_SECONDS,
+                datetime.now(tz) + timedelta(seconds=REBOOT_DELAY_SECONDS),
+            )
+            return self._render_offline_image(settings, device_config, reboot_at)
+        reboot_manager.cancel_reboot()
 
         calendar_colors = settings.get('calendarColors[]')
         default_color = '#007BFF'
@@ -234,10 +248,73 @@ class SeniorDashboardAllDay(BasePlugin):
             end = (dtstart + duration).isoformat()
         return start, end, all_day
 
-    def fetch_calendar(self, calendar_url):
-        # workaround for webcal urls
+    def _normalize_url(self, calendar_url):
+        """Rewrite webcal:// URLs to https:// (requests cannot handle the webcal scheme)."""
         if calendar_url.startswith("webcal://"):
-            calendar_url = calendar_url.replace("webcal://", "https://")
+            return calendar_url.replace("webcal://", "https://")
+        return calendar_url
+
+    def _check_connectivity(self, calendar_urls):
+        """Return True if at least one calendar URL is reachable over the network.
+
+        Only a connection-level failure (timeout / connection refused / DNS) for *all* URLs
+        counts as offline. If any URL returns an HTTP response -- even an error like 404/500 --
+        the network is up and we treat it as online (a reboot would not fix a server error).
+        """
+        for url in calendar_urls:
+            if not url or not url.strip():
+                continue
+            try:
+                # stream=True avoids downloading the body; we only care that bytes start flowing.
+                response = requests.get(self._normalize_url(url.strip()), timeout=5, stream=True)
+                response.close()
+                return True  # got an HTTP response => network is reachable
+            except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+                logger.warning(f"Calendar URL unreachable (network): {url} ({e})")
+                continue
+            except requests.exceptions.RequestException as e:
+                # Any other request error still means the server answered/resolved => online.
+                logger.warning(f"Calendar URL reachable but errored: {url} ({e})")
+                return True
+        return False
+
+    def _render_offline_image(self, settings, device_config, reboot_at):
+        """Render the localized 'no connection / auto-reboot' screen."""
+        dimensions = device_config.get_resolution()
+        if device_config.get_config("orientation") == "vertical":
+            dimensions = dimensions[::-1]
+
+        timezone = device_config.get_config("timezone", default="America/New_York")
+        time_format = device_config.get_config("time_format", default="12h")
+        tz = pytz.timezone(timezone)
+
+        locale_code = settings.get("language") or "en"
+        labels = LABELS.get(locale_code, LABELS["en"])
+
+        # Format the reboot time honoring the device's 12h/24h preference.
+        reboot_local = reboot_at.astimezone(tz)
+        if time_format == "12h":
+            reboot_time_str = reboot_local.strftime("%I:%M %p").lstrip("0")
+        else:
+            reboot_time_str = reboot_local.strftime("%H:%M")
+
+        template_params = {
+            "current_dt": datetime.now(tz).isoformat(),
+            "timezone": timezone,
+            "locale_code": locale_code,
+            "labels": labels,
+            "reboot_time": reboot_time_str,
+            "font_scale": FONT_SIZES.get(settings.get("fontSize", "normal")),
+            "plugin_settings": settings,
+        }
+
+        image = self.render_image(dimensions, "offline.html", "offline.css", template_params)
+        if not image:
+            raise RuntimeError("Failed to take screenshot, please check logs.")
+        return image
+
+    def fetch_calendar(self, calendar_url):
+        calendar_url = self._normalize_url(calendar_url)
         try:
             response = requests.get(calendar_url, timeout=30)
             response.raise_for_status()
