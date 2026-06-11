@@ -8,7 +8,7 @@
 - **Calendar** — Displays today and the next two of days in a list. Events that have already ended are hidden. 
 - **Weather** — Shows current conditions and a short forecast (e.g. tomorrow and the day after) in a minimal layout: icon and temperature, with high/low for the next days.
 It uses the DWD (Deutscher Wetter Dienst) free API, so no API-key config needed.
-- **Never fails silently — error handling & auto-recovery** — The plugin always shows *something* useful: the dashboard when all is well, otherwise a clear, localized screen with the current date and what went wrong. If the cause is a lost internet connection it reboots itself automatically to recover (bounded, so it never reboot-loops). See [Error handling & auto-reboot](#error-handling--auto-reboot) below.
+- **Always shows real data, even offline** — When the internet connection drops, the plugin keeps showing a normal dashboard built from the **last successfully fetched data** (correct current date, your appointments, last weather) instead of an error screen, and quietly reboots to try to restore the connection. A small corner indicator tells you at a glance whether the data is live. See [Offline behaviour & auto-recovery](#offline-behaviour--auto-recovery) below.
 
 The layout is kept clear and low-clutter so it works well on an e-ink display and for quick, easy reading.
 
@@ -26,31 +26,37 @@ Location setting for the weather (DWD supplies world wide weather info).
 Font size for the Calendar listing.
 
 
-## Error handling & auto-reboot
+## Offline behaviour & auto-recovery
 
-This plugin is built for an unattended display that someone depends on every day. A common real-world problem is that the Raspberry Pi or the router drops the Wi-Fi connection (often due to power-save), the calendar can no longer be fetched, and the display **quietly keeps showing stale information** — which is exactly what you don't want for someone who relies on it to know the date and their appointments. Other things can go wrong too (a calendar server error, malformed calendar data, a rendering hiccup), and any of them could otherwise leave the screen silently stuck.
+This plugin is built for an unattended display that someone depends on every day. A common real-world problem is that the Raspberry Pi or the router drops the Wi-Fi connection (often due to power-save) and the calendar can no longer be fetched. The worst thing the display can do then is show an error screen or freeze — the person relying on it just wants to see the date and their appointments.
 
-**The guarantee: the plugin never fails silently.** Every refresh either shows the normal dashboard or a clear, fully localized screen that always includes **today's date** and what happened. When the problem looks recoverable, the device reboots itself to try to fix it — but in a bounded way that can't turn into an endless reboot loop.
+**So when the connection is down, the plugin keeps showing a real dashboard.** On every successful refresh it quietly **stores the fetched calendar (a ~2-week window) and weather locally**. If a later refresh can't reach the internet, it rebuilds the **same dashboard from that stored data** — the **current date** (recomputed live), your appointments re-sorted into today / tomorrow / the day after for *today's* date, and the last-known weather. The screen looks normal; it's just not freshly fetched.
 
-On each refresh:
+### The corner indicator
 
-- **Everything OK** → normal dashboard. (Any reboot scheduled by a previous failed refresh is automatically cancelled, and the failure counter is reset.)
-- **No internet connection** (none of the configured calendars are reachable at the network level) → a localized **"no internet connection"** screen showing the date and the time the device will **automatically restart** (10 minutes later). Rebooting typically restores the Wi-Fi and updates resume. If the connection returns on its own before then, the reboot is cancelled.
-- **Other update problem** (calendar server error, bad calendar data, rendering failure, …) → a localized **"update failed"** screen with the date. The plugin re-checks the connection: if it's actually down, it's treated as the no-internet case; otherwise it still shows the error and schedules a recovery reboot.
-- **Nothing configured yet** (no calendar URL) → a localized **"no calendar configured"** screen, with **no** reboot (a reboot can't fix configuration).
+A small mark in the **lower-right corner** tells you, at a glance, whether what you're looking at is live:
 
-**Reboot loop protection.** Consecutive auto-reboots are capped (default **3**). After that many failed updates in a row the plugin **stops rebooting** and just keeps showing the screen (now with a "persistent problem — please ask for help" note) so the device isn't stuck rebooting forever. The counter is remembered across reboots and is reset the moment a normal update succeeds.
+- **Green dot** → the last refresh successfully fetched fresh data.
+- **A number** (e.g. `3`) → how many refreshes in a row have shown **stored** data since the last successful connection. It counts up while the connection is down and resets to nothing (back to the green dot) the moment a refresh gets through again.
 
-**Always displays, even if the renderer breaks.** The status/error screen normally renders via the same HTML engine as the dashboard; if that itself fails, the plugin falls back to a plain built-in screen so it still shows the date and message.
+### Automatic recovery reboot
 
-**Other details:**
+A few minutes (**~5 min**) after an offline refresh has finished drawing the cached dashboard, the device **reboots** to try to bring the Wi-Fi back. This is safe and does **not** cause a reboot loop:
 
-- The reboot is only triggered when the network is genuinely unreachable (timeout / connection refused / DNS). A reachable calendar *server* that returns an HTTP error (e.g. 404/500) shows the error screen but isn't, by itself, a reason to reboot — though a capped recovery reboot is still attempted in case it clears a transient glitch.
-- With multiple calendars configured, the device is only considered offline when **none** of them can be reached.
-- The displayed reboot time stays stable across refreshes during the same outage.
-- The reboot uses the same `sudo reboot` mechanism as InkyPi's built-in Reboot button, so it relies on the passwordless-sudo setup that a standard InkyPi installation already configures. No extra setup is required.
-- The weather block is best-effort: if the weather service is unreachable the dashboard still renders, just without weather.
-- All screens are localized in the same languages as the rest of the plugin (English, German, Spanish, French) and follow the device's 12h/24h time format. The strings live in `constants.py` (`offlineTitle`, `offlineMessage`, `offlineClock`, `offlineReassure`, `errorTitle`, `errorMessage`, `rebootPrefix`, `configMessage`, `noRebootNote`).
+- It's an e-paper display, so it **keeps showing** the cached dashboard across the reboot and until the next scheduled refresh.
+- InkyPi does **not** refresh immediately on boot — it waits a full refresh cycle (e.g. ~45 min) — so reboots end up roughly one refresh-cycle apart, not back-to-back.
+
+The result: there is **always a current date and your appointments on screen**, and the device keeps making gentle, spaced-out attempts to reconnect on its own. (Only the weather gradually goes stale during a long outage, which is fine.)
+
+### Details & edge cases
+
+- **What counts as "offline":** only a genuine network failure (timeout / connection refused / DNS) for **all** configured calendars. A reachable calendar *server* that returns an error (e.g. 404) or sends bad data still shows the cached dashboard with the number, but does **not** trigger a reboot (a reboot can't fix a server-side problem).
+- **First run with no connection yet** (nothing has ever been fetched, so there's no cache): the plugin shows a localized **"no internet connection"** screen with the date and the restart time, and reboots to recover — the same fallback as before, used only until the first successful fetch fills the cache.
+- **Nothing configured yet** (no calendar URL): a localized **"no calendar configured"** screen, with **no** reboot (a reboot can't fix configuration).
+- **Renderer safety net:** the fallback status screen normally renders via the same HTML engine as the dashboard; if that itself fails, the plugin falls back to a plain built-in screen so it still shows the date.
+- The reboot uses the same `sudo reboot` mechanism as InkyPi's built-in Reboot button, so it relies on the passwordless-sudo setup a standard InkyPi installation already configures. No extra setup is required.
+- The stored data and the offline counter live in the device config, so they survive the reboot — the count keeps climbing across an outage rather than resetting each cycle.
+- The fallback screens are localized in the same languages as the rest of the plugin (English, German, Spanish, French) and follow the device's 12h/24h time format.
 
 
 ## Installation

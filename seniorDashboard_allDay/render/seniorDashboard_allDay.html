@@ -50,6 +50,14 @@
             </div>
         </div>
     </div>
+
+    {% if indicator %}
+    {% if indicator.mode == "ok" %}
+    <div class="refresh-indicator refresh-indicator-ok" title="Last refresh fetched fresh data"></div>
+    {% elif indicator.mode == "stale" and indicator.count %}
+    <div class="refresh-indicator refresh-indicator-stale" title="Refreshes showing stored data since last connection">{{ indicator.count }}</div>
+    {% endif %}
+    {% endif %}
 </div>
 
 <script type="application/json" id="senior-dashboard-config">

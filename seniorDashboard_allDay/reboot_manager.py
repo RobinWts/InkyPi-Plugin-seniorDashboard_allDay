@@ -1,9 +1,14 @@
 """Process-scoped reboot scheduler for the Senior Dashboard plugin.
 
-When the device loses its network connection the dashboard cannot update. Power-save on the
-Pi/router occasionally kills the WLAN until the device is rebooted, so the plugin schedules a
+When the device loses its network connection the dashboard cannot fetch fresh data. Power-save on
+the Pi/router occasionally kills the WLAN until the device is rebooted, so the plugin schedules a
 delayed reboot to recover automatically. This module holds the scheduling state (a single
 ``threading.Timer``) so it survives across ``generate_image()`` calls within the same process.
+
+The reboot fires a short time *after* an offline refresh has already rendered the cached dashboard,
+so the e-paper keeps showing the current date + appointments across the reboot. InkyPi does not
+refresh on boot -- the refresh thread waits a full ``plugin_cycle_interval_seconds`` (~45 min)
+before its first check -- so this produces a gentle ~45-min reboot cadence, not a tight boot-loop.
 
 The reboot uses ``os.system("sudo reboot")`` -- the same mechanism the core ``settings.py``
 ``/shutdown`` endpoint uses, relying on the already-configured passwordless sudo.
@@ -15,15 +20,9 @@ import threading
 
 logger = logging.getLogger(__name__)
 
-# Delay before the reboot fires after connectivity is first detected as lost.
-# Kept long enough to avoid fast boot-loops if the WLAN stays down after a reboot.
-REBOOT_DELAY_SECONDS = 600  # 10 minutes
-
-# Maximum number of consecutive auto-reboots before the plugin stops rebooting and just keeps
-# showing the error/offline screen. Prevents an endless reboot loop on a persistent problem
-# (router truly down, permanently broken calendar URL, render bug). The plugin persists the
-# count across reboots and resets it as soon as a normal update succeeds.
-MAX_CONSECUTIVE_REBOOTS = 3
+# Delay before the reboot fires after an offline refresh has rendered the cached dashboard.
+# Long enough that the rendered image is on screen before the device restarts.
+REBOOT_DELAY_SECONDS = 300  # 5 minutes
 
 _lock = threading.Lock()
 _timer = None

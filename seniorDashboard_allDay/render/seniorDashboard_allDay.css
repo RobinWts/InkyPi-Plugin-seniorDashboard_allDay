@@ -22,6 +22,33 @@ body,
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+/* Lower-right refresh indicator.
+   - .refresh-indicator-ok: a small green dot -> last refresh fetched fresh data.
+   - .refresh-indicator-stale: a small but readable number -> count of consecutive refreshes
+     showing stored (cached) data since the last successful connection. */
+.refresh-indicator {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  z-index: 10;
+}
+
+.refresh-indicator-ok {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background-color: #00FF00;
+}
+
+.refresh-indicator-stale {
+  font-family: "Jost";
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000000;
 }
 
 .dashboard-title {
